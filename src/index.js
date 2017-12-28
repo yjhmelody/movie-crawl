@@ -1,10 +1,16 @@
 const fs = require('fs')
-const {getInThreaters, getTop250, getMovieInfos} = require('./douban-crawl')
+const {
+    getInThreaters, 
+    getTop250, 
+    getMovieInfos,
+    sleep
+} = require('./douban-crawl')
 
 
 exports.insertInthreaters = insertInthreaters
 exports.insertMovieInfos = insertMovieInfos
 exports.insertTop250 = insertTop250
+exports.sleep = sleep
 
 // [el.id, el.title, genres]
 function insertTop250(connection){
@@ -67,6 +73,15 @@ function insertMovieInfos(connection, url, timeout=2000, depth=100){
         if (typeof urlMap !== 'object'){
             return
         }
+
+        connection.connect(function(err){
+            if (err){
+                console.log('error connection:', err.stack)
+                return
+            }
+            console.log('connected as id ' + connection.threadId);
+        })
+        
         for (let [url, v] of urlMap){
             if (v == null || v.movieName == null || v.genres == null){
                 continue
@@ -84,16 +99,18 @@ function insertMovieInfos(connection, url, timeout=2000, depth=100){
             })
         }
     })
-    .catch(function(err){
-        if(err){
-            console.error(err)
-        }
-    })
     .then(function(){
-        // console.log('connection end')
         connection.end(function(err){
             console.error('connection end', err)
         })
+    })
+    .catch(function(err){
+        if(err){
+            console.error(err.message)
+            if(err.stutusCode == 403){
+                throw err
+            }
+        }
     })
 }
 

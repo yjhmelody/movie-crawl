@@ -103,13 +103,6 @@ function getMovieInfo(url) {
             let rank = html.match(rankPattern) ? html.match(rankPattern)[1] : null
             let movieName =  html.match(NamePattern) ? html.match(NamePattern)[1] : null
 
-            // console.log(html)
-            console.log({
-                newUrls: getUrls(html),
-                rank,
-                movieName,
-                genres
-            })
             return {
                 newUrls: getUrls(html),
                 rank,
@@ -129,7 +122,9 @@ async function getMovieInfos(startUrl, timeout=2000, depth=1000){
     let crawlCount = 0
     try {
         let {newUrls, rank, movieName, genres} = await getMovieInfo(startUrl)
-
+        if(newUrls == null){
+            return null
+        }
         urlMap.set(newUrls[0])
         
         for(let url of urlMap.keys()){
@@ -156,9 +151,12 @@ async function getMovieInfos(startUrl, timeout=2000, depth=1000){
             }
         }
     } catch (error) {
-        console.error(__filename, error)
+        console.error(__filename, error.message)
+        // ip 可能被禁
+        if(error.statusCode == 403){
+            throw error
+        }
     }
-    
     return urlMap
 }
 
@@ -172,3 +170,4 @@ function sleep(milliSeconds) {
 exports.getInThreaters = getInThreaters  
 exports.getTop250 = getTop250
 exports.getMovieInfos = getMovieInfos
+exports.sleep = sleep

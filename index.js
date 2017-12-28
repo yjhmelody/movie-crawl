@@ -2,6 +2,7 @@ const {
     insertInthreaters,
     insertTop250,
     insertMovieInfos,
+    sleep
 } = require('./src')
 
 let config = require('./config')
@@ -34,21 +35,15 @@ urls = [
 
 (async function () {
     for(let url of urls){
-        const connection = mysql.createConnection(config.mysqlConfig)
-        connection.connect(function(err){
-            if (err){
-                console.log('error connection:', err.stack)
-                return
-            }
-            console.log('connected as id ' + connection.threadId);
-        })
-
-        await insertMovieInfos(connection, url, 8000, 1000)
-            .catch(err => {
+        try {
+            const connection = mysql.createConnection(config.mysqlConfig)
+            await insertMovieInfos(connection, url, 10000, 500)
+        } catch (err) {
+            console.error(err)
+            connection.end(function(err){
                 console.log(err)
-                connection.end(function(err){
-                    console.log(err)
-                })
             })
+        }
     }
+   
 })()
