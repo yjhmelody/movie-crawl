@@ -1,26 +1,13 @@
 const fs = require('fs')
-const mysql = require('mysql')
 const {getInThreaters, getTop250, getMovieInfos} = require('./douban-crawl')
-let config = require('../config')
 
-const connection = mysql.createConnection(config.mysqlConfig)
-
-connection.connect(function(err){
-    if (err){
-        console.log('error connection:', err.stack)
-        return
-    }
-    console.log('connected as id ' + connection.threadId);
-})
 
 exports.insertInthreaters = insertInthreaters
 exports.insertMovieInfos = insertMovieInfos
 exports.insertTop250 = insertTop250
-exports.connection = connection
-
 
 // [el.id, el.title, genres]
-function insertTop250(){
+function insertTop250(connection){
     getTop250()
     .then(function(data){
         let insertSQL = 'INSERT INTO movies VALUES(?, ?, ?)'
@@ -45,7 +32,7 @@ function insertTop250(){
 
 
 // [el.id, el.title, genres] 
-function insertInthreaters(){
+function insertInthreaters(connection){
     getInThreaters()
     .then(function(data){
         let insertSQL = 'INSERT INTO movies VALUES(?, ?, ?)'
@@ -70,7 +57,7 @@ function insertInthreaters(){
 
 
 // url name rank genres
-function insertMovieInfos(url, timeout=2000, depth=100){
+function insertMovieInfos(connection, url, timeout=2000, depth=100){
     return getMovieInfos(url, timeout, depth)
     .then(function(urlMap){
         let insertSQL = 'INSERT INTO movies VALUES(?, ?, ?)'

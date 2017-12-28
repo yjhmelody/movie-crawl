@@ -1,5 +1,4 @@
 const fs = require('fs')
-const mysql = require('mysql')
 const request = require('request-promise-native')
 const cheerio = require('cheerio')
 const _ = require('lodash')
@@ -24,7 +23,10 @@ const options = {
 // 获取热映中电影
 // movieID | movieName | genres
 function getInThreaters(){
-    return request.get(urls.inThreaters)
+    return request.get({
+        url: urls.inThreaters,
+        // headers: options.headers
+    })
         .promise()
         .then(function (data) {
             data = JSON.parse(data)
@@ -45,7 +47,10 @@ function getInThreaters(){
 // 获取热门电影
 // movieID | movieName | genres
 function getTop250(){
-    return request.get(urls.top250)
+    return request.get({
+        url:urls.top250,
+        // headers: options.headers
+    })
         .promise()
         .then(function (data) {
             data = JSON.parse(data)
@@ -81,7 +86,10 @@ function getMovieInfo(url) {
     let NamePattern = /<span property="v:itemreviewed">(.+?)<\/span>/
     let summaryPattern = /<span property="v:summary" .*?>(.+?)<\/span>/
 
-    return request.get(url)
+    return request.get({
+        url:url,
+        // headers: options.headers        
+    })
         .promise()
         .then(function(html){
             let $ = cheerio.load(html)
@@ -94,6 +102,14 @@ function getMovieInfo(url) {
             genres = genres.replace(/ /g, '|')
             let rank = html.match(rankPattern) ? html.match(rankPattern)[1] : null
             let movieName =  html.match(NamePattern) ? html.match(NamePattern)[1] : null
+
+            // console.log(html)
+            console.log({
+                newUrls: getUrls(html),
+                rank,
+                movieName,
+                genres
+            })
             return {
                 newUrls: getUrls(html),
                 rank,
@@ -151,6 +167,8 @@ function sleep(milliSeconds) {
     while (new Date().getTime() < startTime + milliSeconds);
 }
 
+
+// getMovieInfos('https://movie.douban.com/subject/4268598/', 80000, 10)
 exports.getInThreaters = getInThreaters  
 exports.getTop250 = getTop250
 exports.getMovieInfos = getMovieInfos
