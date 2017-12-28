@@ -74,6 +74,7 @@ function insertMovieInfos(url, timeout=2000, depth=100){
     .then(function(urlMap){
         let insertSQL = 'INSERT INTO movies VALUES(?, ?, ?)'
         let idPattern = /[0-9]{6,9}/
+        let count = 0
 
         if (typeof urlMap !== 'object'){
             return
@@ -88,10 +89,9 @@ function insertMovieInfos(url, timeout=2000, depth=100){
 
             connection.query(insertSQL, el, function (err, results, fields) {
                 if (err) {
-                    console.error('getMovieInfos', err.message)
-                    return
-                }else{
-                    console.log('insert成功', el)
+                    console.error('insertMovieInfos', err.message)
+                }else {
+                    console.log(`第${++count}条插入成功`, el)
                 }
             })
         }

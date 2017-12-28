@@ -8,4 +8,4 @@ const {
 
 // insertInthreaters()
 // insertTop250()
-insertMovieInfos('https://movie.douban.com/subject/26282454/', 5000, 3000)
+insertMovieInfos('https://movie.douban.com/subject/26282448/', 5000, 10)

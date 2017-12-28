@@ -3,8 +3,6 @@ const mysql = require('mysql')
 const request = require('request-promise-native')
 const cheerio = require('cheerio')
 const _ = require('lodash')
-// const mysql = require('mysql')
-// const async = require('async')
 
 
 const urls = {
@@ -112,16 +110,21 @@ function getMovieInfo(url) {
  */
 async function getMovieInfos(startUrl, timeout=2000, depth=1000){ 
     let urlMap = new Map()
+    let crawlCount = 0
     try {
         let {newUrls, rank, movieName, genres} = await getMovieInfo(startUrl)
 
-        urlMap.set(newUrls[0], {movieName, rank, genres})
+        urlMap.set(newUrls[0])
         
         for(let url of urlMap.keys()){
+            console.log('size', urlMap.size)
+            if(urlMap.get(url) != null){
+                continue
+            }
             let {newUrls, rank, movieName, genres} = await getMovieInfo(url)
             // 添加新的信息
             urlMap.set(url, {movieName, rank, genres})
-            console.log('抓取到', url, urlMap.get(url))
+            console.log(`抓取到第${++crawlCount}个`, url, urlMap.get(url))
 
             sleep(timeout)
 
