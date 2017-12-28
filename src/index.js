@@ -16,6 +16,7 @@ connection.connect(function(err){
 exports.insertInthreaters = insertInthreaters
 exports.insertMovieInfos = insertMovieInfos
 exports.insertTop250 = insertTop250
+exports.connection = connection
 
 
 // [el.id, el.title, genres]
@@ -70,7 +71,7 @@ function insertInthreaters(){
 
 // url name rank genres
 function insertMovieInfos(url, timeout=2000, depth=100){
-    getMovieInfos(url, timeout, depth)
+    return getMovieInfos(url, timeout, depth)
     .then(function(urlMap){
         let insertSQL = 'INSERT INTO movies VALUES(?, ?, ?)'
         let idPattern = /[0-9]{6,9}/

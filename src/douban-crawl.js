@@ -92,8 +92,8 @@ function getMovieInfo(url) {
             })
             genres = genres.trimRight()
             genres = genres.replace(/ /g, '|')
-            let rank = html.match(rankPattern)[1] ? html.match(rankPattern)[1] : null
-            let movieName =  html.match(NamePattern)[1] ?  html.match(NamePattern)[1] : null
+            let rank = html.match(rankPattern) ? html.match(rankPattern)[1] : null
+            let movieName =  html.match(NamePattern) ? html.match(NamePattern)[1] : null
             return {
                 newUrls: getUrls(html),
                 rank,
