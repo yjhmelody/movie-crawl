@@ -6,6 +6,7 @@ const _ = require('lodash')
 // const mysql = require('mysql')
 // const async = require('async')
 
+
 const urls = {
     inThreaters:'http://api.douban.com/v2/movie/in_theaters?count=50',
     top250:'http://api.douban.com/v2/movie/top250?count=250&start=100'
@@ -93,11 +94,12 @@ function getMovieInfo(url) {
             })
             genres = genres.trimRight()
             genres = genres.replace(/ /g, '|')
-            
+            let rank = html.match(rankPattern)[1] ? html.match(rankPattern)[1] : null
+            let movieName =  html.match(NamePattern)[1] ?  html.match(NamePattern)[1] : null
             return {
                 newUrls: getUrls(html),
-                rank: html.match(rankPattern)[1],
-                movieName: html.match(NamePattern)[1],
+                rank,
+                movieName,
                 genres
             }
         })
@@ -135,7 +137,7 @@ async function getMovieInfos(startUrl, timeout=2000, depth=1000){
             }
         }
     } catch (error) {
-        console.error(error)
+        console.error(__filename, error)
     }
     
     return urlMap

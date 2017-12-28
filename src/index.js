@@ -79,7 +79,7 @@ function insertMovieInfos(url, timeout=2000, depth=100){
             return
         }
         for (let [url, v] of urlMap){
-            if (v.movieName == null || v.genres == null){
+            if (v == null || v.movieName == null || v.genres == null){
                 continue
             }
 
@@ -88,23 +88,25 @@ function insertMovieInfos(url, timeout=2000, depth=100){
 
             connection.query(insertSQL, el, function (err, results, fields) {
                 if (err) {
-                    console.error('getMovieInfos', err.sqlMessage)
+                    console.error('getMovieInfos', err.message)
                     return
+                }else{
+                    console.log('insert成功', el)
                 }
-
-                console.log('insert成功', el)
             })
         }
     })
     .catch(function(err){
         if(err){
-            console.error(err.message)
+            console.error(err)
         }
     })
     .then(function(){
-        console.log('connection end')
+        // console.log('connection end')
         connection.end(function(err){
-            console.log(err)
+            console.error('connection end', err)
         })
     })
 }
+
+    
