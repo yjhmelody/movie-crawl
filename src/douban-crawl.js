@@ -3,7 +3,7 @@ const mysql = require('mysql')
 const request = require('request-promise-native')
 const cheerio = require('cheerio')
 const _ = require('lodash')
-
+// const async = require('async')
 
 const urls = {
     inThreaters:'http://api.douban.com/v2/movie/in_theaters?count=50',
@@ -70,53 +70,73 @@ function getTop250(){
  * @param {String} html
  * @return {Promise} promise with url array
  */
-function getUrls(html, pattern=/https:\/\/movie.douban.com\/subject\/([0-9]{6,9})/g){
+function getUrls(html){
     // https://movie.douban.com/subject/1291557/?from=subject-page    
+    let pattern = /https:\/\/movie.douban.com\/subject\/([0-9]{6,9})/g
     return html.match(pattern)
 }
 
+
 /**
- * 递归搜索豆瓣每个电影页面获取 movieID
- * @param {String} url 
- * @param {Array} arr urls' array
+ * @param {Array} startUrls
+ * @param {Map} urlMap
  * @param {Number} timeout 
  * @param {Number} depth
  */
-function getMovieInfo(url, infos, timeout=20000, depth=4){ 
-    console.log(arr.length)
-    request.get({
-        url,
-        headers:{}
-    })
+async function getMovieInfo(startUrl, urlMap, timeout=1000){ 
+    let rankPattern = /<strong class="ll rating_num" property="v:average">([0-9.]+)<\/strong>/
+    let NamePattern = /<span property="v:itemreviewed">(.+)<\/span>/
+    try {
+        let {newUrl, rank, movieName} = await request.get(startUrl)
         .promise()
         .then(function(html){
-            return getUrls(html)
+            return {
+                newUrl: getUrls(html),
+                rank: html.match(rankPattern)[1],
+                movieName: html.match(NamePattern)[1]
+            }
         })
-        .then(function(urls){
-            // urls = _.uniqBy(urls, 0)
-            for(let url of urls){
-                if(infos[url]){
+        urlMap.set(newUrl[0], {movieName, rank})
+
+        for(let url of urlMap.keys()){
+            console.log('现在访问', url)
+
+            let {newUrls, rank, movieName} = await request.get(url)
+                .promise()
+                .then(function(html){
+                    return {
+                        newUrls: getUrls(html),
+                        rank: html.match(rankPattern)[1],
+                        movieName: html.match(NamePattern)[1]
+                    }
+                })
+
+            // 添加新的信息
+            urlMap.set(url, {movieName, rank})
+            console.log('添加', url, movieName, rank)
+                
+            sleep(timeout)
+
+            for(let newUrl of newUrls){
+                if(urlMap.has(newUrl)){
                     continue
                 }
-
-                // store the info
-                console.log(url)                        
-                infos[url] = []
-                if (depth > 0){
-                    setTimeout(function(){
-                        getMovieInfo(url, infos, timeout, depth-1)
-                    }, timeout + timeout * Math.random())
-                }
-            }
-        })
-        .catch(function(err){
-            if(err){
-                console.log(err.message)
-            }
-        })
+                urlMap.set(newUrl)
+            } 
+        }
+    } catch (error) {
+        console.log(error)
+    }
+  
 }
-let infos = []
-getMovieInfo('https://movie.douban.com/subject/1291557/?from=subject-page', infos)
+
+function sleep(milliSeconds) { 
+    var startTime = new Date().getTime(); 
+    while (new Date().getTime() < startTime + milliSeconds);
+ };
+
+let urlMap = new Map()
+getMovieInfo('https://movie.douban.com/subject/1291557/?from=subject-page', urlMap)
 
 exports.getInThreaters = getInThreaters  
 exports.getTop250 = getTop250
