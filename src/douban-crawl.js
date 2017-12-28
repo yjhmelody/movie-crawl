@@ -3,6 +3,7 @@ const mysql = require('mysql')
 const request = require('request-promise-native')
 const cheerio = require('cheerio')
 const _ = require('lodash')
+// const mysql = require('mysql')
 // const async = require('async')
 
 const urls = {
@@ -76,45 +77,51 @@ function getUrls(html){
     return html.match(pattern)
 }
 
+// movieID | movieName | genres | rank
+function getMovieInfo(url) {
+    let rankPattern = /<strong class="ll rating_num" property="v:average">([0-9.]+)<\/strong>/
+    let NamePattern = /<span property="v:itemreviewed">(.+?)<\/span>/
+    let summaryPattern = /<span property="v:summary" .*?>(.+?)<\/span>/
+
+    return request.get(url)
+        .promise()
+        .then(function(html){
+            let $ = cheerio.load(html)
+            let $genres = $('#info > span[property="v:genre"]')
+            let genres = ''
+            $genres.each(function(i, el){
+                genres += $(this).text() + ' '
+            })
+            genres = genres.trimRight()
+            genres = genres.replace(/ /g, '|')
+            
+            return {
+                newUrls: getUrls(html),
+                rank: html.match(rankPattern)[1],
+                movieName: html.match(NamePattern)[1],
+                genres
+            }
+        })
+}
 
 /**
  * @param {Array} startUrls
- * @param {Map} urlMap
  * @param {Number} timeout 
  * @param {Number} depth
  */
-async function getMovieInfo(startUrl, urlMap, timeout=1000){ 
-    let rankPattern = /<strong class="ll rating_num" property="v:average">([0-9.]+)<\/strong>/
-    let NamePattern = /<span property="v:itemreviewed">(.+)<\/span>/
+async function getMovieInfos(startUrl, timeout=1000, depth=10){ 
+    let urlMap = new Map()
     try {
-        let {newUrl, rank, movieName} = await request.get(startUrl)
-        .promise()
-        .then(function(html){
-            return {
-                newUrl: getUrls(html),
-                rank: html.match(rankPattern)[1],
-                movieName: html.match(NamePattern)[1]
-            }
-        })
-        urlMap.set(newUrl[0], {movieName, rank})
+        let {newUrls, rank, movieName, genres} = await getMovieInfo(startUrl)
 
+        urlMap.set(newUrls[0], {movieName, rank, genres})
+        
         for(let url of urlMap.keys()){
-            console.log('现在访问', url)
-
-            let {newUrls, rank, movieName} = await request.get(url)
-                .promise()
-                .then(function(html){
-                    return {
-                        newUrls: getUrls(html),
-                        rank: html.match(rankPattern)[1],
-                        movieName: html.match(NamePattern)[1]
-                    }
-                })
-
+            let {newUrls, rank, movieName, genres} = await getMovieInfo(url)
             // 添加新的信息
-            urlMap.set(url, {movieName, rank})
-            console.log('添加', url, movieName, rank)
-                
+            urlMap.set(url, {movieName, rank, genres})
+            console.log('抓取到', url, urlMap.get(url))
+
             sleep(timeout)
 
             for(let newUrl of newUrls){
@@ -123,21 +130,23 @@ async function getMovieInfo(startUrl, urlMap, timeout=1000){
                 }
                 urlMap.set(newUrl)
             } 
+
+            if (depth-- < 0) {
+                break
+            }
         }
     } catch (error) {
-        console.log(error)
+        console.error(error)
     }
-  
+    
+    return urlMap
 }
 
 function sleep(milliSeconds) { 
     var startTime = new Date().getTime(); 
     while (new Date().getTime() < startTime + milliSeconds);
- };
-
-let urlMap = new Map()
-getMovieInfo('https://movie.douban.com/subject/1291557/?from=subject-page', urlMap)
+}
 
 exports.getInThreaters = getInThreaters  
 exports.getTop250 = getTop250
-exports.getMovieInfo = getMovieInfo
+exports.getMovieInfos = getMovieInfos
