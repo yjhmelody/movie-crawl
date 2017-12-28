@@ -12,7 +12,6 @@ const urls = {
 }
 
 const options = {
-    url: 'https://api.github.com/repos/request/request',
     headers: {
         'Accept': 'text/html,application/xhtml+xml,application/x',
         'Accept-Encoding': 'gzip, deflate',
@@ -105,11 +104,11 @@ function getMovieInfo(url) {
 }
 
 /**
- * @param {Array} startUrls
+ * @param {String} startUrl
  * @param {Number} timeout 
  * @param {Number} depth
  */
-async function getMovieInfos(startUrl, timeout=1000, depth=10){ 
+async function getMovieInfos(startUrl, timeout=2000, depth=1000){ 
     let urlMap = new Map()
     try {
         let {newUrls, rank, movieName, genres} = await getMovieInfo(startUrl)
