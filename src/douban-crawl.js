@@ -152,10 +152,12 @@ async function getMovieInfos(startUrl, timeout=2000, depth=1000){
         }
     } catch (error) {
         console.error(__filename, error.message)
+        return urlMap
         // ip 可能被禁
-        if(error.statusCode == 403){
-            throw error
-        }
+        // if(error.statusCode == 403){
+            // console.log(error.statusCode)
+            // throw error
+        // }
     }
     return urlMap
 }

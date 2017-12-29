@@ -10,15 +10,17 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "async": "^2.6.0",
+    "async": "^2.6.0",    
     "cheerio": "^1.0.0-rc.2",
     "express": "^4.16.2",
     "lodash": "^4.17.4",
     "mysql": "^2.15.0",
+    "node-schedule": "^1.2.5",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5"
   },
   "devDependencies": {
+    "@types/node-schedule": "^1.2.1",
     "@types/async": "^2.0.46"
   }
 }
