@@ -1,28 +1,10 @@
 #!/usr/bin/env node
 const schedule = require('node-schedule')
-const {main} = require('../index')
+const {
+  main,
+  getUrls
+} = require('../index')
 
-
-let urls = [
-  'https://movie.douban.com/subject/26862259/',
-  'https://movie.douban.com/subject/3541415/',
-  'https://movie.douban.com/subject/1292720/',
-  'https://movie.douban.com/subject/4739952/',
-  'https://movie.douban.com/subject/3742360/',
-  'https://movie.douban.com/subject/1652587/',
-  'https://movie.douban.com/subject/1292223/',
-  'https://movie.douban.com/subject/4268598/',
-  'https://movie.douban.com/subject/4920528/',
-  'https://movie.douban.com/subject/1291561/',
-  'https://movie.douban.com/subject/1292402/',
-  'https://movie.douban.com/subject/1292220/',
-  'https://movie.douban.com/subject/1291832/',
-  'https://movie.douban.com/subject/1305487/',
-  'https://movie.douban.com/subject/1307762/',
-  'https://movie.douban.com/subject/23761370/',
-  'https://movie.douban.com/subject/1301753/',
-  'https://movie.douban.com/subject/2353023/'
-];
 
 // *    *    *    *    *    *
 // ┬    ┬    ┬    ┬    ┬    ┬
@@ -39,8 +21,9 @@ let urls = [
 
 
 console.log('已经启动定时任务')
-let count = 0
-let j = schedule.scheduleJob('*/31 * * * *', function(){
-    let url = urls[Math.floor( Math.random() * urls.length)]
-    main(url, 10000, 200)
+let j = schedule.scheduleJob('*/34 * * * *', function(){
+    getUrls(3)
+        .then(function(urls){
+            main(urls, 10000, 50)
+        })  
 });

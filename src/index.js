@@ -11,6 +11,7 @@ exports.insertInthreaters = insertInthreaters
 exports.insertMovieInfos = insertMovieInfos
 exports.insertTop250 = insertTop250
 exports.sleep = sleep
+exports.selectUrls = selectUrls
 
 // [el.id, el.title, genres]
 function insertTop250(connection){
@@ -114,4 +115,26 @@ function insertMovieInfos(connection, url, timeout=2000, depth=100){
     })
 }
 
+function selectUrls(connection, n=10) {
+    return new Promise(function(res, rej){
+        connection.connect(function(err){
+            if (err){
+                console.log('error connection:', err.stack)
+                return
+            }
+            console.log('connected as id ' + connection.threadId);
+        })
+        let insertSQL = `select * from movies order by RAND() limit 0, ?;`
+        
+        connection.query(insertSQL, [n], function (err, results, fields) {
+            if (err) {
+                console.error('selectUrls error', err.message)
+                rej()
+            }else {
+                // console.log(results)
+                res(results)
+            }
+        })
+    })
+}
     
