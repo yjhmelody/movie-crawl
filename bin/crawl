@@ -21,9 +21,14 @@ const {
 
 
 console.log('已经启动定时任务')
-let j = schedule.scheduleJob('*/34 * * * *', function(){
+let j = schedule.scheduleJob('*/9 * * * *', function(){
     getUrls(3)
         .then(function(urls){
             main(urls, 10000, 50)
-        })  
+        })
+        .catch(function(err){
+            if(err){
+                console.log(err.message)
+            }
+        })
 });
