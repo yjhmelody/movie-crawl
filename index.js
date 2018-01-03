@@ -12,6 +12,7 @@ const mysql = require('mysql')
 exports.insertInthreaters =  insertInthreaters
 exports.insertTop250 = insertTop250
 
+
 exports.main = async function main(urls, timeout, depth) {
     for(let url of urls){
         try {

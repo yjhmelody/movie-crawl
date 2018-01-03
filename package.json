@@ -5,17 +5,19 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./index.js"
+    "start": "node ./bin/crawl"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "async": "^2.6.0",    
+    "async": "^2.6.0",
+    "bluebird": "^3.5.1",
     "cheerio": "^1.0.0-rc.2",
     "express": "^4.16.2",
     "lodash": "^4.17.4",
     "mysql": "^2.15.0",
     "node-schedule": "^1.2.5",
+    "redis": "^2.8.0",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5"
   },

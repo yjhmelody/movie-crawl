@@ -6,7 +6,8 @@ const _ = require('lodash')
 
 const urls = {
     inThreaters:'http://api.douban.com/v2/movie/in_theaters?count=50',
-    top250:'http://api.douban.com/v2/movie/top250?count=250&start=100'
+    top250:'http://api.douban.com/v2/movie/top250?count=250&start=100',
+    comingSoon: 'http://api.douban.com/v2/movie/coming_soon'
 }
 
 const options = {
@@ -33,8 +34,9 @@ function getInThreaters(){
             let data2 = []
             data.subjects.forEach(function(el){
                 let genres = el.genres.join('|')
-                data2.push([el.id, el.title, genres])
+                data2.push([el.id, el.title, genres, el.rating.average])
             })
+            console.log(data2)
             return data2
         })
         .catch(function (err) {
@@ -57,8 +59,9 @@ function getTop250(){
             let data2 = []
             data.subjects.forEach(function(el){
                 let genres = el.genres.join('|')
-                data2.push([el.id, el.title, genres])
+                data2.push([el.id, el.title, genres, el.rating.average])
             })
+            console.log(data2)            
             return data2
         })
         .catch(function (err) {
@@ -67,6 +70,32 @@ function getTop250(){
             }
         })
 }
+
+// 获取即将上线的电影
+// movieID | movieName | genres
+function getInThreaters(){
+    return request.get({
+        url: urls.comingSoon,
+        // headers: options.headers
+    })
+        .promise()
+        .then(function (data) {
+            data = JSON.parse(data)
+            let data2 = []
+            data.subjects.forEach(function(el){
+                let genres = el.genres.join('|')
+                data2.push([el.id, el.title, genres, el.rating.average])
+            })
+            console.log(data2)
+            return data2
+        })
+        .catch(function (err) {
+            if (err) {
+                console.log(err.statusCode)
+            }
+        })
+}
+
 
 
 /**
@@ -88,7 +117,7 @@ function getMovieInfo(url) {
 
     return request.get({
         url:url,
-        // headers: options.headers        
+        // headers: options.headers
     })
         .promise()
         .then(function(html){
@@ -112,12 +141,14 @@ function getMovieInfo(url) {
         })
 }
 
+// getMovieInfos('https://movie.douban.com/subject/26654146/?from=showing')
+
 /**
  * @param {String} startUrl
  * @param {Number} timeout 
  * @param {Number} depth
  */
-async function getMovieInfos(startUrl, timeout=2000, depth=1000){ 
+async function getMovieInfos(startUrl, timeout=2000, depth=100){ 
     let urlMap = new Map()
     let crawlCount = 0
     try {
@@ -134,7 +165,7 @@ async function getMovieInfos(startUrl, timeout=2000, depth=1000){
             }
             let {newUrls, rank, movieName, genres} = await getMovieInfo(url)
             // 添加新的信息
-            urlMap.set(url, {movieName, rank, genres})
+            urlMap.set(url, {movieName, rank, genres, rank})
             console.log(`抓取到第${++crawlCount}个`, url, urlMap.get(url))
 
             sleep(timeout)

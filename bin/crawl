@@ -18,13 +18,11 @@ const {
 
 // main(urls, 10000, 150)
 
-
-
 console.log('已经启动定时任务')
-let j = schedule.scheduleJob('*/9 * * * *', function(){
-    getUrls(3)
+let j = schedule.scheduleJob('*/10 * * * *', function(){
+    getUrls(10)
         .then(function(urls){
-            main(urls, 10000, 50)
+            main(urls, 1000, 50)
         })
         .catch(function(err){
             if(err){

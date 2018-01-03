@@ -17,7 +17,7 @@ exports.selectUrls = selectUrls
 function insertTop250(connection){
     getTop250()
     .then(function(data){
-        let insertSQL = 'INSERT INTO movies VALUES(?, ?, ?)'
+        let insertSQL = 'INSERT INTO movies2 VALUES(?, ?, ?, ?)'
         if (typeof data !== 'object'){
             return
         }
@@ -42,7 +42,7 @@ function insertTop250(connection){
 function insertInthreaters(connection){
     getInThreaters()
     .then(function(data){
-        let insertSQL = 'INSERT INTO movies VALUES(?, ?, ?)'
+        let insertSQL = 'INSERT INTO movies2 VALUES(?, ?, ?, ?)'
         if (typeof data !== 'object'){
             return
         }
@@ -67,7 +67,7 @@ function insertInthreaters(connection){
 function insertMovieInfos(connection, url, timeout=2000, depth=100){
     return getMovieInfos(url, timeout, depth)
     .then(function(urlMap){
-        let insertSQL = 'INSERT INTO movies VALUES(?, ?, ?)'
+        let insertSQL = 'INSERT INTO movies2 VALUES(?, ?, ?, ?)'
         let idPattern = /[0-9]{6,9}/
         let count = 0
 
@@ -84,12 +84,12 @@ function insertMovieInfos(connection, url, timeout=2000, depth=100){
         })
         
         for (let [url, v] of urlMap){
-            if (v == null || v.movieName == null || v.genres == null){
+            if (v == null || v.movieName == null || v.genres == null || v.rank == null){
                 continue
             }
 
             let id = url.match(idPattern)[0]
-            let el = [id, v.movieName, v.genres]
+            let el = [id, v.movieName, v.genres, v.rank]
 
             connection.query(insertSQL, el, function (err, results, fields) {
                 if (err) {
