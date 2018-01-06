@@ -19,14 +19,14 @@ const {
 // main(urls, 10000, 150)
 
 console.log('已经启动定时任务')
-let j = schedule.scheduleJob('*/10 * * * *', function(){
-    getUrls(10)
-        .then(function(urls){
-            main(urls, 1000, 50)
-        })
-        .catch(function(err){
-            if(err){
-                console.log(err.message)
-            }
-        })
+let j = schedule.scheduleJob('*/33 * * * *', function(){
+        getUrls(10)
+            .then(function(urls){
+                main(urls, 1000, 10)
+            })
+            .catch(function(err){
+                if(err){
+                    console.log(err.message)
+                }
+            })
 });

@@ -165,7 +165,7 @@ async function getMovieInfos(startUrl, timeout=2000, depth=100){
             }
             let {newUrls, rank, movieName, genres} = await getMovieInfo(url)
             // 添加新的信息
-            urlMap.set(url, {movieName, rank, genres, rank})
+            urlMap.set(url, {movieName, rank, genres})
             console.log(`抓取到第${++crawlCount}个`, url, urlMap.get(url))
 
             sleep(timeout)

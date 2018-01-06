@@ -64,7 +64,7 @@ function insertInthreaters(connection){
 
 
 // url name rank genres
-function insertMovieInfos(connection, url, timeout=2000, depth=100){
+function insertMovieInfos(connection, url, timeout=2000, depth=50){
     return getMovieInfos(url, timeout, depth)
     .then(function(urlMap){
         let insertSQL = 'INSERT INTO movies2 VALUES(?, ?, ?, ?)'
@@ -75,13 +75,13 @@ function insertMovieInfos(connection, url, timeout=2000, depth=100){
             return
         }
 
-        connection.connect(function(err){
-            if (err){
-                console.log('error connection:', err.stack)
-                return
-            }
-            console.log('connected as id ' + connection.threadId);
-        })
+        // connection.connect(function(err){
+        //     if (err){
+        //         console.log('error connection:', err.stack)
+        //         return
+        //     }
+        //     console.log('connected as id ' + connection.threadId);
+        // })
         
         for (let [url, v] of urlMap){
             if (v == null || v.movieName == null || v.genres == null || v.rank == null){
@@ -90,12 +90,12 @@ function insertMovieInfos(connection, url, timeout=2000, depth=100){
 
             let id = url.match(idPattern)[0]
             let el = [id, v.movieName, v.genres, v.rank]
-
+            count++
             connection.query(insertSQL, el, function (err, results, fields) {
                 if (err) {
                     console.error('insertMovieInfos', err.message)
                 }else {
-                    console.log(`第${++count}条插入成功`, el)
+                    console.log(`第${count}条插入成功`, el)
                 }
             })
         }
@@ -117,13 +117,14 @@ function insertMovieInfos(connection, url, timeout=2000, depth=100){
 
 function selectUrls(connection, n=10) {
     return new Promise(function(res, rej){
-        connection.connect(function(err){
-            if (err){
-                console.log('error connection:', err.stack)
-                return
-            }
-            console.log('connected as id ' + connection.threadId);
-        })
+        // connection.connect(function(err){
+        //     if (err){
+        //         console.log('error connection:', err.stack)
+        //         return
+        //     }
+        //     console.log('connected as id ' + connection.threadId);
+        // })
+        
         let insertSQL = `select * from movies order by RAND() limit 0, ?;`
         
         connection.query(insertSQL, [n], function (err, results, fields) {
